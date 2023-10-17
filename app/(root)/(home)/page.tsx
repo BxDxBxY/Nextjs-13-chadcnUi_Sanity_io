@@ -1,17 +1,20 @@
 import Filters from "@/components/Filters";
+import Header from "@/components/Header";
 import ResourceCard from "@/components/ResourceCard";
 import SearchForm from "@/components/SearchForm";
 import { getResources } from "@/sanity/actions";
 
+interface Props {
+  searchParams: { [key: string]: string | undefined };
+}
 
-const page = async () => {
+const page = async ({ searchParams }: Props) => {
+  console.log(searchParams);
   const resources = await getResources({
     query: "",
-    category: "",
+    category: searchParams?.category || "",
     page: "1",
   });
-
-  console.log(resources);
 
   return (
     <main className="flex-center paddings mx-auto w-full max-w-screen-2xl flex-col">
@@ -24,26 +27,31 @@ const page = async () => {
         <SearchForm />
       </section>
       <Filters />
-      <section className="flex-center mt-6 w-full flex-col sm:mt-20">
-        Header
-        <div className="mt-12 flex justify-center flex-wrap gap-16 sm:justify-start w-full">
-          {resources?.length > 0 ? (
-            resources.map((resource: any) => (
-              <ResourceCard 
-              key={resource._id} 
-              title={resource.title}
-              id={resource._id}
-              slug={resource._id}
-              downloadNumber={resource.views}
-              image={resource.image}
-              // category={resource.category}
-              />
-            ))
-          ) : (
-            <p className="text-white-400 body-regular">No resources found</p>
-          )}
-        </div>
-      </section>
+      {(searchParams?.query || searchParams.category) && (
+        <section className="flex-center mt-6 w-full flex-col sm:mt-20">
+          <Header
+            query={searchParams?.query || ""}
+            category={searchParams?.category || ""}
+            title="Resources"
+          />
+          <div className="mt-12 flex justify-center flex-wrap gap-16 sm:justify-start w-full">
+            {resources?.length > 0 ? (
+              resources.map((resource: any) => (
+                <ResourceCard
+                  key={resource._id}
+                  title={resource.title}
+                  id={resource._id}
+                  downloadNumber={resource.views}
+                  image={resource.image}
+                  // category={resource.category}
+                />
+              ))
+            ) : (
+              <p className="text-white-400 body-regular">No resources found</p>
+            )}
+          </div>
+        </section>
+      )}
     </main>
   );
 };
